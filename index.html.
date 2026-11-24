@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>SUPER CLICKER — COSMIC CHAOS</title>
+<style>
+*{box-sizing:border-box;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;min-height:100%;overflow-x:hidden;overscroll-behavior:none;scroll-behavior:auto}
+body{font-family:Arial,sans-serif;color:white;background:radial-gradient(ellipse at 50% 0%,#482080,#171044 45%,#080b20);touch-action:pan-y;transition:background .5s}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background-image:radial-gradient(#ffffff70 1px,transparent 1px),radial-gradient(#a78bfa66 1px,transparent 1px);background-size:55px 55px,95px 95px;background-position:0 0,25px 35px}
+body[data-theme="dark"]{background:linear-gradient(135deg,#080808,#252525)}
+body[data-theme="pink"]{background:linear-gradient(135deg,#650c55,#ed5b9e)}
+body[data-theme="neon"]{background:linear-gradient(135deg,#001b27,#003e4c,#32105a)}
+body[data-theme="light"]{background:linear-gradient(135deg,#dceaff,#a8c8ff);color:#17213a}
+body[data-planet="mars"]{background:linear-gradient(135deg,#35101b,#8b302e,#25102b)}
+body[data-planet="ice"]{background:linear-gradient(135deg,#062d50,#167ba0,#101c4c)}
+body[data-planet="void"]{background:linear-gradient(135deg,#080018,#39005c,#090020)}
+header{text-align:center;padding:18px 10px 8px}
+h1{margin:5px;font-size:clamp(23px,6vw,34px);letter-spacing:3px;text-shadow:0 0 10px #a68aff,0 0 28px #8b5cf6}
+#balance{font-size:clamp(27px,7vw,39px);font-weight:900;margin:12px;text-shadow:0 0 18px #ffe78a}
+#statsline{opacity:.85;font-size:13px}
+main{width:100%;max-width:760px;margin:auto;padding:10px 12px 160px}
+.panel{width:100%;min-width:0;background:linear-gradient(145deg,#ffffff1c,#ffffff08);border:1px solid #ffffff35;border-radius:22px;padding:17px;margin:13px 0;backdrop-filter:blur(14px);box-shadow:0 8px 30px #0003,inset 0 1px #ffffff18}
+button{border:1px solid #ffffff30;border-radius:14px;padding:13px 15px;font-size:15px;font-weight:bold;color:white;background:linear-gradient(135deg,#7956ff,#a044ee);cursor:pointer;margin:4px;max-width:100%;white-space:normal;overflow-wrap:anywhere;box-shadow:0 5px 15px #5424a955;transition:filter .18s;touch-action:manipulation}
+button:active{filter:brightness(1.2)}
+button:disabled{opacity:.4;filter:grayscale(.5);box-shadow:none;cursor:not-allowed}
+input{width:100%;max-width:100%;min-width:0;padding:13px;border-radius:12px;border:1px solid #aaa;margin:7px 0;font-size:16px;user-select:text;-webkit-user-select:text;touch-action:manipulation}
+h2{margin-top:4px;font-size:21px}
+.small{font-size:12px;opacity:.75;overflow-wrap:anywhere;line-height:1.5}
+.notice{text-align:center;min-height:22px;color:#ffe78a;overflow-wrap:anywhere}
+.action-buttons{display:flex;flex-wrap:wrap;gap:5px}
+.action-buttons button{flex:1 1 130px}
+.page{display:none;min-width:0;animation:none!important;overflow-anchor:none}
+.page.active{display:block}
+.item{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid #ffffff25;padding:13px 0;min-width:0;flex-wrap:wrap}
+.item:last-child{border:0}
+.item>div{flex:1 1 140px;min-width:0;overflow-wrap:anywhere}
+.item button{flex:0 1 auto;min-width:100px}
+.core-wrap{width:min(240px,68vw);height:min(240px,68vw);margin:22px auto;display:grid;place-items:center;position:relative}
+.core-ring{position:absolute;width:100%;height:100%;border:3px solid #a78bfa;border-left-color:transparent;border-right-color:#54eaff;border-radius:50%;box-shadow:0 0 18px #8b5cf6,inset 0 0 18px #54eaff55;animation:orbit 7s linear infinite}
+.core-ring.two{width:82%;height:82%;border:2px dashed #f0abfc;animation:orbitBack 5s linear infinite}
+.core-ring.three{width:110%;height:110%;border:1px solid #54eaff66;animation:orbit 12s linear infinite}
+#coin{position:relative;z-index:2;width:68%;height:68%;border-radius:50%;font-size:clamp(65px,19vw,95px);padding:0;margin:0;display:grid;place-items:center;background:radial-gradient(circle at 35% 25%,#fff,#a5f3fc 15%,#8b5cf6 48%,#3b0764 85%);box-shadow:0 0 25px #a78bfa,0 0 65px #7c3aed,inset 0 0 20px #fff9;animation:pulse 2.3s ease-in-out infinite;border:3px solid #ffffff80;touch-action:none}
+#coin:active{animation:coreHit .25s ease}
+@keyframes orbit{to{transform:rotate(360deg)}}
+@keyframes orbitBack{to{transform:rotate(-360deg)}}
+@keyframes pulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.07);filter:brightness(1.3)}}
+@keyframes coreHit{0%{transform:scale(1)}50%{transform:scale(.86)}100%{transform:scale(1.05)}}
+.float{position:fixed;pointer-events:none;font-weight:bold;color:#fff28a;font-size:24px;animation:up .8s forwards;z-index:10;text-shadow:0 0 10px #ffdb55}
+.particle{position:fixed;width:8px;height:8px;border-radius:50%;background:#a5f3fc;pointer-events:none;z-index:9;box-shadow:0 0 12px #a5f3fc;animation:particleFly .7s ease-out forwards}
+@keyframes up{to{transform:translateY(-90px) scale(1.2);opacity:0}}
+@keyframes particleFly{to{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
+#comboDisplay{font-size:23px;font-weight:bold;color:#ffe78a;text-shadow:0 0 15px #ff9d00;min-height:30px;text-align:center}
+.chest{font-size:65px;text-align:center;filter:drop-shadow(0 0 15px #ffc857);animation:chestGlow 2s infinite alternate}
+@keyframes chestGlow{from{filter:drop-shadow(0 0 5px #ffc857)}to{filter:drop-shadow(0 0 25px #ffdf72)}}
+.planet-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.planet-card{background:#ffffff12;border:1px solid #ffffff30;border-radius:15px;padding:12px;text-align:center;min-width:0}
+.planet-icon{font-size:42px}
+.planet-card button{width:100%;margin:7px 0 0}
+.planet-card.selected{border:2px solid #ffe78a;box-shadow:0 0 15px #ffe78a55}
+.progress{height:10px;background:#ffffff25;border-radius:20px;overflow:hidden;margin:8px 0}
+.progress div{height:100%;background:linear-gradient(90deg,#54eaff,#b04dff);width:0%;transition:width .3s}
+.social-link{display:flex;align-items:center;gap:12px;text-decoration:none;color:white;background:#168bd0;padding:15px;border-radius:14px;margin:10px 0;font-weight:bold}
+.security-note{font-size:12px;opacity:.75;line-height:1.5}
+.boss-card{border:1px solid #ff6b9d;background:linear-gradient(145deg,#6b174544,#250e2e99)}
+.boss-icon{text-align:center;font-size:65px;filter:drop-shadow(0 0 15px #ff386f)}
+.boss-health{height:18px;background:#351020;border-radius:20px;overflow:hidden;margin:10px 0;border:1px solid #ff6b9d55}
+.boss-health div{height:100%;background:linear-gradient(90deg,#ff315b,#ff9c45);transition:width .2s}
+.ultimate{background:linear-gradient(135deg,#ff8c00,#ff315b)}
+.artifact{background:#ffffff12;border:1px solid #f6d36555;border-radius:14px;padding:12px;margin:8px 0}
+.rank{font-size:25px;font-weight:bold;color:#ffe78a;text-shadow:0 0 12px #ffb700}
+.portal{background:#160e3caa;border:1px solid #9b72ff;border-radius:14px;padding:13px;margin:9px 0}
+.nav-shell{position:fixed;bottom:0;left:0;right:0;z-index:20;padding:7px 0 calc(7px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#17102bef,#090719f5);border-top:1px solid #a78bfa55;backdrop-filter:blur(18px);box-shadow:0 -8px 30px #0006}
+.nav-hint{height:22px;display:flex;align-items:center;justify-content:center;gap:14px;font-size:11px;color:#cbbaff;letter-spacing:.5px}
+.nav-hint .arrow{font-size:17px;color:#54eaff;text-shadow:0 0 10px #54eaff}
+.nav{display:flex;flex-wrap:nowrap;justify-content:flex-start;align-items:center;gap:7px;padding:3px 12px 5px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;touch-action:pan-x;overscroll-behavior-x:contain}
+.nav::-webkit-scrollbar,.admin-tabs::-webkit-scrollbar{display:none}
+.nav button{flex:0 0 82px;width:82px;min-width:82px;height:57px;margin:0;padding:6px 3px;font-size:11px;line-height:1.35;border-radius:13px;background:#ffffff12;border:1px solid #ffffff25;box-shadow:none;color:#dcd4ff;scroll-snap-align:center}
+.nav button.active{background:linear-gradient(135deg,#7956ff,#b04dff);border:1px solid #e3d4ff;box-shadow:0 0 15px #9b72ff99;color:white}
+#adminPanel{display:none;border:2px solid #ffcf4a;background:radial-gradient(ellipse at 50% 0%,#8b5cf644,transparent 65%),linear-gradient(145deg,#160c35f5,#09091cf5);box-shadow:0 0 25px #a855f766,inset 0 0 30px #ffcf4a12;overflow-anchor:none}
+#adminPanel h2{text-align:center;color:#ffe78a;text-shadow:0 0 15px #ffb700;font-size:25px}
+.admin-hero{text-align:center;padding:18px 10px;border:1px solid #ffcf4a77;border-radius:18px;background:linear-gradient(135deg,#6d28d955,#f59e0b22);margin-bottom:15px}
+.admin-logo{font-size:48px;filter:drop-shadow(0 0 15px #ffcf4a)}
+.admin-hero strong{display:block;color:#ffe78a;font-size:22px;letter-spacing:2px}
+.admin-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}
+.admin-stat{padding:12px;border:1px solid #a78bfa55;border-radius:13px;background:#ffffff0d;min-width:0}
+.admin-stat span{display:block;font-size:12px;opacity:.7}
+.admin-stat b{display:block;margin-top:5px;font-size:19px;overflow-wrap:anywhere;color:#ffe78a}
+.admin-tabs{display:flex;gap:6px;overflow-x:auto;padding:5px 0 12px;scrollbar-width:none;touch-action:pan-x;overscroll-behavior-x:contain}
+.admin-tabs button{flex:0 0 auto;margin:0;padding:10px 13px;font-size:12px;background:#ffffff14}
+.admin-tabs button.selected{background:linear-gradient(135deg,#f59e0b,#d946ef);box-shadow:0 0 14px #f59e0b77}
+.admin-section{display:none;overflow-anchor:none}
+.admin-section.selected{display:block}
+.admin-box{background:#ffffff0b;border:1px solid #ffffff25;border-radius:15px;padding:13px;margin:10px 0;overflow-anchor:none}
+.admin-box h3{margin:3px 0 12px;color:#ffe78a}
+.admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.admin-grid button{margin:0;font-size:12px;padding:12px 5px}
+.admin-field{margin:10px 0}
+.admin-field label{display:block;font-size:13px;color:#d8caff}
+.admin-field input{background:#100b27;color:white;border:1px solid #a78bfa}
+.admin-danger{background:linear-gradient(135deg,#991b1b,#dc2626)}
+.admin-warning{color:#ffcf4a;font-size:12px;line-height:1.5}
+#adminMessage{padding:10px;border-radius:12px;background:#ffffff0c;min-height:25px}
+button:active,.nav button:active,.admin-tabs button:active{transform:none!important}
+button,.nav button,.admin-tabs button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#adminPanel,#adminPanel *{overflow-anchor:none}
+@media(max-width:380px){main{padding-left:8px;padding-right:8px}.panel{padding:12px}.item{gap:5px}.item button{min-width:90px;font-size:13px;padding:11px 9px}.nav button{flex-basis:76px;width:76px;min-width:76px}.admin-stat b{font-size:16px}}
+</style>
+</head>
+<body data-theme="cosmic" data-planet="cosmic">
+<header>
+<h1 id="gameTitle">SUPER CLICKER</h1>
+<div id="balance">🪙 0</div>
+<div id="statsline">💎 0 кристаллов · Уровень 1</div>
+<div id="rankHeader" class="small">Новичок</div>
+</header>
+<main>
+<section id="game" class="page active">
+<div class="panel" style="text-align:center">
+<h2>🌌 Энергетическое ядро</h2>
+<div>Нажимай на ядро и собирай энергию!</div>
+<div class="core-wrap"><div class="core-ring"></div><div class="core-ring two"></div><div class="core-ring three"></div><button id="coin">🔮</button></div>
+<div id="clickInfo">За клик: 1 монета</div><div id="comboDisplay"></div><div class="notice" id="message"></div>
+</div>
+<div class="panel boss-card"><h2>👾 КОСМИЧЕСКИЙ БОСС</h2><div class="boss-icon" id="bossIcon">👹</div><div style="text-align:center"><b id="bossName">Страж галактики</b></div><div class="boss-health"><div id="bossHealthBar"></div></div><div id="bossInfo" class="small" style="text-align:center"></div><div class="notice" id="bossMessage"></div></div>
+<div class="panel"><h2>⚡ УЛЬТИМАТИВНАЯ СПОСОБНОСТЬ</h2><div id="ultimateInfo">Заряд: 0%</div><div class="progress"><div id="ultimateBar"></div></div><button class="ultimate" id="ultimateButton" onclick="activateUltimate()" style="width:100%">⚡ УЛЬТА x10</button><div class="small">Заряжается от кликов. Доход увеличивается в 10 раз на 15 секунд.</div></div>
+<div class="panel"><h2>🎁 Космический сундук</h2><div class="chest">🎁</div><div id="chestInfo" style="text-align:center">🔑 Ключей: 0</div><p class="small" style="text-align:center">Каждые 50 кликов ты получаешь ключ.</p><button id="chestButton" style="width:100%" onclick="openChest()">Открыть сундук</button><div class="notice" id="chestMessage"></div></div>
+<div class="panel"><h2>🪐 Космическое путешествие</h2><div id="planetProgress"></div><div class="planet-grid" id="planetList"></div></div>
+<div class="panel"><h2>🎁 Бонусы</h2><div class="action-buttons"><button onclick="dailyReward()">Ежедневная награда</button><button id="bonusButton" onclick="timedBonus()">Случайный бонус</button></div><div class="small" id="bonusTimer"></div></div>
+<div class="panel"><h2>📊 Статистика</h2><div id="statistics"></div></div>
+</section>
+<section id="bosses" class="page"><div class="panel boss-card"><h2>👾 Арена боссов</h2><div class="boss-icon" id="bossIcon2">👹</div><h3 id="bossName2" style="text-align:center">Страж галактики</h3><div class="boss-health"><div id="bossHealthBar2"></div></div><div id="bossInfo2" class="small" style="text-align:center"></div><p>Атакуй босса кликами по энергетическому ядру на главной странице. Победа приносит монеты и кристаллы!</p><button onclick="showPage('game')" style="width:100%">⚔️ В бой!</button><div class="notice" id="bossMessage2"></div></div></section>
+<section id="portals" class="page"><div class="panel"><h2>🌀 Межпространственные порталы</h2><p class="small">Открывай новые измерения за клики и кристаллы.</p><div id="portalList"></div></div></section>
+<section id="artifacts" class="page"><div class="panel"><h2>💎 Легендарные артефакты</h2><p class="small">Артефакты навсегда усиливают твою энергию.</p><div id="artifactList"></div></div></section>
+<section id="ranks" class="page"><div class="panel"><h2>🏆 Космические ранги</h2><div class="rank" id="rankName"></div><div id="rankDescription"></div><div class="progress"><div id="rankBar"></div></div><div id="rankProgress" class="small"></div></div></section>
+<section id="shop" class="page"><div class="panel"><h2>🛒 Магазин</h2><div id="shopItems"></div></div></section>
+<section id="achievements" class="page"><div class="panel"><h2>🏆 Достижения</h2><div id="achievementList"></div></div></section>
+<section id="rebirth" class="page"><div class="panel"><h2>🌌 Перерождение</h2><p>Начни заново и получи постоянные бонусы.</p><div id="rebirthInfo"></div><button onclick="doRebirth()">Переродиться</button></div></section>
+<section id="themes" class="page"><div class="panel"><h2>🎨 Темы</h2><div class="action-buttons"><button onclick="setTheme('cosmic')">🌌 Космос</button><button onclick="setTheme('dark')">🌑 Тёмная</button><button onclick="setTheme('pink')">🌸 Розовая</button><button onclick="setTheme('neon')">💚 Неон</button><button onclick="setTheme('light')">☀️ Светлая</button></div></div></section>
+<section id="promo" class="page">
+<div class="panel"><h2>🎟️ Промокоды</h2><input id="promoInput" placeholder="Введи промокод"><button onclick="usePromo()">Активировать</button><div class="notice" id="promoMessage"></div></div>
+<div class="panel"><h2>💾 Сохранение</h2><div class="action-buttons"><button onclick="saveGame();notify('Сохранение записано!')">Сохранить прогресс</button><button onclick="loadGame()">Загрузить сохранение</button></div><div class="small">Прогресс автоматически сохраняется на этом устройстве.</div><div class="security-note">Создаётся резервная копия последнего сохранения.</div></div>
+<div class="panel"><h2>🔄 Сброс прогресса</h2><p class="small">Удалит монеты, улучшения, достижения и остальные данные игры.</p><button style="width:100%" onclick="resetGame()">🗑️ Сбросить весь прогресс</button></div>
+</section>
+<section id="leaderboard" class="page"><div class="panel"><h2>🥇 Таблица лидеров</h2><div class="small">Демонстрационная локальная таблица.</div><div id="leaderList"></div></div></section>
+<section id="socials" class="page"><div class="panel"><h2>🌐 Мои соцсети</h2><p class="small">Подписывайся и следи за новостями игры!</p><a class="social-link" href="https://t.me/KARMA08755" target="_blank" rel="noopener noreferrer"><span>✈️</span><span>Мой Telegram<br><small>@KARMA08755</small></span></a></div></section>
+<section id="admin" class="page">
+<div class="panel" id="adminPanel">
+<div class="admin-hero"><div class="admin-logo">👑</div><strong>SUPER ADMIN</strong><div>10,000,000X CONTROL CENTER</div><div class="small">Космическая консоль управления</div></div>
+<div class="admin-dashboard">
+<div class="admin-stat"><span>🪙 Монеты</span><b id="admCoinsView">0</b></div><div class="admin-stat"><span>💎 Кристаллы</span><b id="admGemsView">0</b></div><div class="admin-stat"><span>⚡ Сила клика</span><b id="admPowerView">1</b></div><div class="admin-stat"><span>👾 Уровень босса</span><b id="admBossView">1</b></div><div class="admin-stat"><span>🖱️ Всего кликов</span><b id="admClicksView">0</b></div><div class="admin-stat"><span>🌌 Перерождения</span><b id="admRebirthView">0</b></div>
+</div>
+<div class="admin-tabs">
+<button class="selected" onclick="adminTab('resources',this)">💰 Ресурсы</button><button onclick="adminTab('power',this)">⚡ Сила</button><button onclick="adminTab('world',this)">🌌 Мир</button><button onclick="adminTab('boss',this)">👾 Боссы</button><button onclick="adminTab('rewards',this)">🏆 Награды</button><button onclick="adminTab('system',this)">⚙️ Система</button>
+</div>
+<div class="admin-section selected" id="adm-resources">
+<div class="admin-box"><h3>🪙 Управление монетами</h3><div class="admin-field"><label>Количество монет</label><input id="adminCoins" type="number" min="0" placeholder="Например, 1000000"></div><div class="admin-grid"><button onclick="adminAddCoins()">➕ Добавить</button><button onclick="adminSetCoins()">✏️ Установить</button><button onclick="adminAddCoins(10000)">+10K</button><button onclick="adminAddCoins(1000000)">+1M</button><button onclick="adminAddCoins(100000000)">+100M</button><button onclick="adminAddCoins(1000000000)">+1B</button></div></div>
+<div class="admin-box"><h3>💎 Управление кристаллами</h3><div class="admin-field"><label>Количество кристаллов</label><input id="adminGems" type="number" min="0" placeholder="Например, 10000"></div><div class="admin-grid"><button onclick="adminAddGems()">➕ Добавить</button><button onclick="adminSetGems()">✏️ Установить</button><button onclick="adminAddGems(100)">+100</button><button onclick="adminAddGems(10000)">+10K</button><button onclick="adminAddGems(1000000)">+1M</button><button onclick="adminAddGems(100000000)">+100M</button></div></div>
+</div>
+<div class="admin-section" id="adm-power"><div class="admin-box"><h3>⚡ Мощность ядра</h3><div class="admin-field"><label>Новая сила клика</label><input id="adminPower" type="number" min="1" placeholder="Сила клика"></div><button onclick="adminSetPower()">Применить силу</button><div class="admin-grid"><button onclick="adminPowerPreset(100)">⚡ x100</button><button onclick="adminPowerPreset(1000)">⚡ x1K</button><button onclick="adminPowerPreset(100000)">⚡ x100K</button><button onclick="adminPowerPreset(1000000)">⚡ x1M</button></div></div><div class="admin-box"><h3>🚀 Множители</h3><div class="admin-grid"><button onclick="adminSetMultiplier(2)">x2</button><button onclick="adminSetMultiplier(10)">x10</button><button onclick="adminSetMultiplier(100)">x100</button><button onclick="adminSetMultiplier(1000)">x1000</button></div><p class="small">Устанавливает общий множитель монет.</p></div></div>
+<div class="admin-section" id="adm-world"><div class="admin-box"><h3>🪐 Космические миры</h3><button onclick="adminUnlockPlanets()">Открыть все планеты</button><button onclick="adminUnlockPortals()">Открыть все порталы</button><button onclick="adminSetPlanet('cosmic')">Вернуться на Землю</button><button onclick="adminSetPlanet('mars')">Переместиться на Марс</button><button onclick="adminSetPlanet('ice')">Переместиться в ледяной мир</button><button onclick="adminSetPlanet('void')">Переместиться в Пустоту</button></div><div class="admin-box"><h3>💎 Артефакты</h3><button onclick="adminMaxArtifacts()">Улучшить все артефакты до максимума</button></div></div>
+<div class="admin-section" id="adm-boss"><div class="admin-box"><h3>👾 Управление боссами</h3><div class="admin-field"><label>Уровень босса</label><input id="adminBossLevel" type="number" min="1" max="100000" placeholder="Уровень"></div><button onclick="adminSetBoss()">Установить уровень босса</button><button onclick="adminHealBoss()">Восстановить здоровье босса</button><button onclick="adminDefeatBoss()">Завершить бой и получить награду</button></div></div>
+<div class="admin-section" id="adm-rewards"><div class="admin-box"><h3>🏆 Награды и достижения</h3><button onclick="adminClaimBonus()">🎁 Получить 5 000 монет и 10 💎</button><button onclick="adminUnlockAchievements()">Открыть все достижения</button><button onclick="adminGiveKeys()">Получить 100 ключей сундука</button><button onclick="adminGiveRebirth()">Получить перерождение</button></div></div>
+<div class="admin-section" id="adm-system"><div class="admin-box"><h3>💾 Система сохранения</h3><button onclick="saveGame();adminMessage('Игра сохранена!')">Сохранить игру</button><button onclick="loadGame()">Загрузить игру</button><button onclick="restoreBackup()">Восстановить резервную копию</button></div><div class="admin-box"><h3>⚠️ Опасные действия</h3><button class="admin-danger" onclick="adminResetUpgrades()">Сбросить улучшения</button><button class="admin-danger" onclick="resetGame()">Полностью сбросить игру</button></div><p class="admin-warning">Это локальная админ-панель. Она не защищена сервером, а изменения действуют только в сохранении на этом устройстве.</p></div>
+<div id="adminMessage" class="notice">👑 Добро пожаловать в SUPER ADMIN!</div>
+</div>
+</section>
+</main>
+<div class="nav-shell"><div class="nav-hint"><span id="navLeft" class="arrow">‹</span><span id="navHintText">Листай меню пальцем, чтобы выбрать раздел</span><span id="navRight" class="arrow">›</span></div><nav class="nav" id="mainNav">
+<button data-page="game" class="active" onclick="showPage('game')">🌌<br>Игра</button><button data-page="shop" onclick="showPage('shop')">🛒<br>Магазин</button><button data-page="bosses" onclick="showPage('bosses')">👾<br>Боссы</button><button data-page="portals" onclick="showPage('portals')">🌀<br>Порталы</button><button data-page="artifacts" onclick="showPage('artifacts')">💎<br>Артефакты</button><button data-page="ranks" onclick="showPage('ranks')">🏆<br>Ранги</button><button data-page="achievements" onclick="showPage('achievements')">🎖️<br>Награды</button><button data-page="rebirth" onclick="showPage('rebirth')">🌠<br>Рождение</button><button data-page="themes" onclick="showPage('themes')">🎨<br>Темы</button><button data-page="promo" onclick="showPage('promo')">🎟️<br>Ещё</button><button data-page="leaderboard" onclick="showPage('leaderboard')">🥇<br>Лидеры</button><button data-page="socials" onclick="showPage('socials')">🌐<br>Соцсети</button><button data-page="admin" onclick="showPage('admin')">👑<br>Админ</button>
+</nav></div>
+<script>
+"use strict";
+const SAVE_KEY="superClickerSaveV6",BACKUP_KEY="superClickerBackupV6",MAX_COINS=1e15,MAX_GEMS=1e12;
+const initialData=()=>({coins:0,gems:0,power:1,multiplier:1,rebirths:0,totalEarned:0,totalClicks:0,auto:0,upgrades:{enhanced:0,super:0,income:0,mult:0},claimed:[],usedPromos:[],dailyDate:"",lastBonusTime:0,chestKeys:0,chestsOpened:0,bestCombo:0,combo:0,lastClickTime:0,activePlanet:"cosmic",bossLevel:1,bossHp:100,bossesDefeated:0,ultimateCharge:0,artifacts:[],portals:[],planetUnlocks:[],ultimateUntil:0});
+let data=initialData(),lastAcceptedClick=0,ultimateActive=false,clickAudioContext=null;
+const promos={START100:100,SUPER500:500,POWERUP:250,KARMA123:1000};
+const shop=[{id:"enhanced",name:"Усиленный клик",desc:"+1 монета за клик",base:30,max:100},{id:"super",name:"Супер-клик",desc:"+5 монет за клик",base:150,max:100},{id:"auto",name:"Автокликер",desc:"+1 монета каждую секунду",base:250,max:50},{id:"income",name:"Улучшение дохода",desc:"+10% к доходу",base:300,max:50},{id:"mult",name:"Множитель монет",desc:"+0.25 к множителю",base:500,max:20}];
+const planets=[{id:"cosmic",name:"Земля",icon:"🌍",clicks:0,desc:"Твоя стартовая планета"},{id:"mars",name:"Марс",icon:"🔴",clicks:100,desc:"Планета огня"},{id:"ice",name:"Ледяной мир",icon:"🧊",clicks:500,desc:"Мир вечного холода"},{id:"void",name:"Пустота",icon:"🌌",clicks:1500,desc:"Тайны далёкой галактики"}];
+const bosses=[{name:"Страж галактики",icon:"👹",hp:100,reward:500,rewardGems:2},{name:"Пожиратель звёзд",icon:"🐉",hp:1000,reward:5000,rewardGems:5},{name:"Тёмный колосс",icon:"👾",hp:10000,reward:30000,rewardGems:12},{name:"Повелитель пустоты",icon:"☠️",hp:100000,reward:200000,rewardGems:30},{name:"Космический титан",icon:"🛸",hp:1000000,reward:1000000,rewardGems:100}];
+const artifacts=[{id:"crystal",name:"🔮 Кристалл силы",desc:"+10% к силе клика за уровень",cost:10,max:10},{id:"star",name:"⭐ Звезда богатства",desc:"+15% ко всем монетам за уровень",cost:15,max:10},{id:"heart",name:"💜 Сердце космоса",desc:"+5% к силе клика за уровень",cost:20,max:10}];
+const portals=[{id:"nebula",name:"🌫️ Туманность",clicks:2500,gems:10,desc:"Туманное измерение"},{id:"dimension",name:"🌀 Измерение X",clicks:5000,gems:25,desc:"Мир за пределами времени"},{id:"galaxy",name:"🌠 Галактика титанов",clicks:10000,gems:50,desc:"Обитель древних сил"},{id:"infinity",name:"♾️ Бесконечность",clicks:25000,gems:100,desc:"Последняя граница"}];
+const ranks=[{name:"Новичок",icon:"🌱",clicks:0,desc:"Твой путь только начинается"},{name:"Кликер",icon:"⚡",clicks:100,desc:"Ты освоил силу ядра"},{name:"Исследователь",icon:"🚀",clicks:500,desc:"Ты покоряешь новые миры"},{name:"Космический воин",icon:"🛡️",clicks:1500,desc:"Тебя знают в галактике"},{name:"Звёздный магистр",icon:"✨",clicks:5000,desc:"Ты управляешь энергией звёзд"},{name:"Легенда галактики",icon:"👑",clicks:15000,desc:"Твоё имя известно повсюду"},{name:"Властелин космоса",icon:"🌌",clicks:50000,desc:"Ты достиг невероятной силы"}];
+const achievements=[
+{id:"first",name:"Первый клик",desc:"Сделай 1 клик",reward:50,check:()=>data.totalClicks>=1},
+{id:"click100",name:"Кликер",desc:"Сделай 100 кликов",reward:250,check:()=>data.totalClicks>=100},
+{id:"coins1000",name:"Богач",desc:"Заработай 1 000 монет",reward:300,check:()=>data.totalEarned>=1000},
+{id:"coins10000",name:"Мастер монет",desc:"Заработай 10 000 монет",reward:1000,check:()=>data.totalEarned>=10000},
+{id:"rebirth",name:"Новая жизнь",desc:"Сделай перерождение",reward:500,check:()=>data.rebirths>=1},
+{id:"chest1",name:"Охотник за сокровищами",desc:"Открой первый сундук",reward:500,check:()=>data.chestsOpened>=1},
+{id:"chest10",name:"Коллекционер",desc:"Открой 10 сундуков",reward:2500,check:()=>data.chestsOpened>=10},
+{id:"combo10",name:"На скорости",desc:"Собери комбо 10",reward:500,check:()=>data.bestCombo>=10},
+{id:"combo50",name:"Молниеносный",desc:"Собери комбо 50",reward:2500,check:()=>data.bestCombo>=50},
+{id:"planet",name:"Покоритель Марса",desc:"Открой Марс",reward:1000,check:()=>data.totalClicks>=100||data.planetUnlocks.includes("mars")},
+{id:"click1000",name:"Легенда кликов",desc:"Сделай 1 000 кликов",reward:5000,check:()=>data.totalClicks>=1000},
+{id:"boss1",name:"Охотник на боссов",desc:"Победи первого босса",reward:1500,check:()=>data.bossesDefeated>=1},
+{id:"boss5",name:"Убийца титанов",desc:"Победи 5 боссов",reward:10000,check:()=>data.bossesDefeated>=5},
+{id:"artifact",name:"Коллекционер артефактов",desc:"Купи артефакт",reward:1000,check:()=>data.artifacts.length>0},
+{id:"portal",name:"Путешественник",desc:"Открой портал",reward:2000,check:()=>data.portals.length>0}
+];
+function el(id){return document.getElementById(id)}
+function notify(t){el("message").textContent=t}
+function validNumber(v,min=0,max=MAX_COINS){return typeof v==="number"&&Number.isFinite(v)&&v>=min&&v<=max}
+function bossMaxHp(level){return Math.floor(100*Math.pow(2.4,Math.max(0,level-1)))}
+function cleanData(raw){
+const d=initialData();if(!raw||typeof raw!=="object"||Array.isArray(raw))return d;
+d.coins=validNumber(raw.coins)?raw.coins:0;d.gems=validNumber(raw.gems,0,MAX_GEMS)?raw.gems:0;
+d.power=validNumber(raw.power,1,1000000)?Math.floor(raw.power):1;d.multiplier=validNumber(raw.multiplier,.01,1000000)?raw.multiplier:1;
+d.rebirths=validNumber(raw.rebirths,0,100000)?Math.floor(raw.rebirths):0;d.totalEarned=validNumber(raw.totalEarned)?raw.totalEarned:0;
+d.totalClicks=validNumber(raw.totalClicks,0,1e12)?Math.floor(raw.totalClicks):0;d.auto=validNumber(raw.auto,0,50)?Math.floor(raw.auto):0;
+d.lastBonusTime=validNumber(raw.lastBonusTime,0,Number.MAX_SAFE_INTEGER)?raw.lastBonusTime:0;d.chestKeys=validNumber(raw.chestKeys,0,1e9)?Math.floor(raw.chestKeys):0;
+d.chestsOpened=validNumber(raw.chestsOpened,0,1e12)?Math.floor(raw.chestsOpened):0;d.bestCombo=validNumber(raw.bestCombo,0,1e9)?Math.floor(raw.bestCombo):0;
+d.combo=validNumber(raw.combo,0,1e9)?Math.floor(raw.combo):0;d.lastClickTime=validNumber(raw.lastClickTime,0,Number.MAX_SAFE_INTEGER)?raw.lastClickTime:0;
+d.dailyDate=typeof raw.dailyDate==="string"?raw.dailyDate:"";d.activePlanet=planets.some(p=>p.id===raw.activePlanet)?raw.activePlanet:"cosmic";
+d.bossLevel=validNumber(raw.bossLevel,1,100000)?Math.floor(raw.bossLevel):1;d.bossHp=validNumber(raw.bossHp,0,1e15)?raw.bossHp:bossMaxHp(d.bossLevel);
+d.bossesDefeated=validNumber(raw.bossesDefeated,0,1e9)?Math.floor(raw.bossesDefeated):0;
+d.ultimateCharge=validNumber(raw.ultimateCharge,0,100)?raw.ultimateCharge:0;d.ultimateUntil=validNumber(raw.ultimateUntil,0,Number.MAX_SAFE_INTEGER)?raw.ultimateUntil:0;
+if(raw.upgrades&&typeof raw.upgrades==="object")for(const k of ["enhanced","super","income","mult"]){const v=raw.upgrades[k];d.upgrades[k]=validNumber(v,0,100)?Math.floor(v):0}
+d.claimed=Array.isArray(raw.claimed)?raw.claimed.filter(x=>achievements.some(a=>a.id===x)):[];
+d.usedPromos=Array.isArray(raw.usedPromos)?raw.usedPromos.filter(x=>Object.prototype.hasOwnProperty.call(promos,x)):[];
+if(Array.isArray(raw.artifacts))for(const a of artifacts){const s=raw.artifacts.find(x=>x&&x.id===a.id),level=s&&Number.isFinite(Number(s.level))?Math.max(0,Math.min(a.max,Math.floor(Number(s.level)))):0;if(level)d.artifacts.push({id:a.id,level})}
+d.portals=Array.isArray(raw.portals)?raw.portals.filter(x=>portals.some(p=>p.id===x)):[];
+d.planetUnlocks=Array.isArray(raw.planetUnlocks)?raw.planetUnlocks.filter(x=>planets.some(p=>p.id===x)):[];
+return d;
+}
+function saveGame(){
+try{const old=localStorage.getItem(SAVE_KEY);if(old){try{JSON.parse(old);localStorage.setItem(BACKUP_KEY,old)}catch(e){}}localStorage.setItem(SAVE_KEY,JSON.stringify(data));return true}catch(e){console.warn("Ошибка сохранения",e);return false}
+}
+function loadGame(){try{const s=localStorage.getItem(SAVE_KEY);if(!s){alert("Сохранение не найдено.");return}data=cleanData(JSON.parse(s));document.body.dataset.planet=data.activePlanet;update();alert("Сохранение загружено!")}catch(e){restoreBackup()}}
+function restoreBackup(){try{const s=localStorage.getItem(BACKUP_KEY);if(!s){alert("Резервная копия не найдена.");return}data=cleanData(JSON.parse(s));document.body.dataset.planet=data.activePlanet;update();alert("Резервная копия восстановлена.")}catch(e){alert("Не удалось восстановить копию.")}}
+function artifactBonus(id){const a=data.artifacts.find(x=>x.id===id);return a?a.level:0}
+function totalPower(){return Math.floor((data.power+data.upgrades.enhanced+data.upgrades.super*5)*data.multiplier*(1+data.upgrades.mult*.25)*(1+data.upgrades.income*.1)*(1+data.rebirths*.25)*(1+artifactBonus("crystal")*.1+artifactBonus("heart")*.05)*(1+artifactBonus("star")*.15))}
+function addCoins(amount){if(!validNumber(amount)||data.coins+amount>MAX_COINS||data.totalEarned+amount>MAX_COINS)return false;data.coins+=amount;data.totalEarned+=amount;return true}
+function playClickSound(){
+try{
+const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
+if(!clickAudioContext)clickAudioContext=new AudioCtx();
+if(clickAudioContext.state==="suspended")clickAudioContext.resume();
+const ctx=clickAudioContext,osc=ctx.createOscillator(),gain=ctx.createGain(),now=ctx.currentTime;
+osc.type="sine";osc.frequency.setValueAtTime(650,now);osc.frequency.exponentialRampToValueAtTime(1100,now+.07);
+gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.14,now+.01);gain.gain.exponentialRampToValueAtTime(.0001,now+.12);
+osc.connect(gain);gain.connect(ctx.destination);osc.start(now);osc.stop(now+.13);
+}catch(e){console.log("Звук недоступен")}
+}
+function update(){
+el("balance").textContent="🪙 "+Math.floor(data.coins).toLocaleString("ru-RU");
+el("statsline").textContent="💎 "+data.gems+" кристаллов · Уровень "+(1+data.rebirths);
+el("clickInfo").textContent="За клик: "+totalPower()+" монет";
+el("statistics").innerHTML="Всего заработано: "+Math.floor(data.totalEarned).toLocaleString("ru-RU")+"<br>Кликов: "+data.totalClicks+"<br>Сила клика: "+totalPower()+"<br>Автокликеров: "+data.auto+"<br>Перерождений: "+data.rebirths+"<br>Открыто сундуков: "+data.chestsOpened+"<br>Лучшее комбо: "+data.bestCombo+"<br>Побеждено боссов: "+data.bossesDefeated;
+el("chestInfo").textContent="🔑 Ключей: "+data.chestKeys;el("chestButton").disabled=data.chestKeys<=0;
+renderShop();renderAchievements();renderRebirth();renderLeaderboard();renderPlanets();renderBoss();renderUltimate();renderPortals();renderArtifacts();renderRanks();updateBonusTimer();adminRefresh();saveGame();
+}
+function showFloat(x,y,text){const n=document.createElement("div");n.className="float";n.textContent=text;n.style.left=x+"px";n.style.top=y+"px";document.body.appendChild(n);setTimeout(()=>n.remove(),850)}
+function createParticles(x,y){for(let i=0;i<12;i++){const p=document.createElement("div");p.className="particle";p.style.left=x+"px";p.style.top=y+"px";const a=Math.PI*2*i/12,d=35+Math.random()*55;p.style.setProperty("--dx",Math.cos(a)*d+"px");p.style.setProperty("--dy",Math.sin(a)*d+"px");document.body.appendChild(p);setTimeout(()=>p.remove(),750)}}
+function clickCoin(e){
+e.preventDefault();const now=Date.now();if(now-lastAcceptedClick<45)return;if(data.totalClicks>=1e12)return;lastAcceptedClick=now;playClickSound();
+data.combo=now-data.lastClickTime<1500?data.combo+1:1;data.lastClickTime=now;data.bestCombo=Math.max(data.bestCombo,data.combo);data.totalClicks++;
+let reward=totalPower(),r=Math.random();if(r<.03)reward*=5;else if(r<.15)reward*=2;
+const comboBonus=data.combo>=50?5:data.combo>=25?3:data.combo>=10?2:1;
+reward=Math.floor(reward*comboBonus);if(Date.now()<data.ultimateUntil)reward*=10;
+if(!addCoins(reward))return;
+damageBoss(reward);data.ultimateCharge=Math.min(100,data.ultimateCharge+1.5);
+if(data.totalClicks%50===0){data.chestKeys++;el("chestMessage").textContent="🔑 Новый ключ за 50 кликов!"}
+el("comboDisplay").textContent=data.combo>1?"⚡ Комбо: "+data.combo+(data.combo>=10?" 🔥 x"+comboBonus+" КОМБО!":""):"";
+showFloat(e.clientX,e.clientY,"+"+reward);createParticles(e.clientX,e.clientY);
+el("message").textContent=r<.03?"🌟 ЛЕГЕНДАРНЫЙ КРИТИЧЕСКИЙ КЛИК!":r<.15?"✨ ДВОЙНАЯ ЭНЕРГИЯ!":"";
+checkAchievements();update();
+}
+el("coin").addEventListener("pointerdown",clickCoin);
+function renderBoss(){
+const b=bosses[(data.bossLevel-1)%bosses.length],max=bossMaxHp(data.bossLevel);data.bossHp=Math.min(data.bossHp,max);
+const pct=Math.max(0,Math.min(100,data.bossHp/max*100));
+["bossIcon","bossIcon2"].forEach(id=>el(id).textContent=b.icon);
+["bossName","bossName2"].forEach(id=>el(id).textContent=b.name+" · Уровень "+data.bossLevel);
+["bossHealthBar","bossHealthBar2"].forEach(id=>el(id).style.width=pct+"%");
+const info="❤️ "+Math.ceil(data.bossHp).toLocaleString("ru-RU")+" / "+max.toLocaleString("ru-RU")+" HP";
+["bossInfo","bossInfo2"].forEach(id=>el(id).textContent=info);
+}
+function damageBoss(amount){
+if(data.bossHp<=0)return;data.bossHp=Math.max(0,data.bossHp-amount);
+if(data.bossHp===0){const b=bosses[(data.bossLevel-1)%bosses.length],reward=b.reward*data.bossLevel;addCoins(reward);data.gems=Math.min(MAX_GEMS,data.gems+b.rewardGems);data.bossesDefeated++;data.bossLevel++;data.bossHp=bossMaxHp(data.bossLevel);const msg="🏆 БОСС ПОБЕЖДЁН! +"+reward.toLocaleString("ru-RU")+" монет и +"+b.rewardGems+" 💎";el("bossMessage").textContent=msg;el("bossMessage2").textContent=msg}
+else el("bossMessage").textContent="⚔️ Босс получил "+Math.floor(amount)+" урона!";
+}
+function renderUltimate(){
+const active=Date.now()<data.ultimateUntil;ultimateActive=active;
+el("ultimateInfo").textContent=active?"🔥 УЛЬТА АКТИВНА! Осталось "+Math.ceil((data.ultimateUntil-Date.now())/1000)+" сек.":"Заряд: "+Math.floor(data.ultimateCharge)+"%";
+el("ultimateBar").style.width=data.ultimateCharge+"%";
+const b=el("ultimateButton");b.disabled=active||data.ultimateCharge<100;b.textContent=active?"🔥 АКТИВНА":data.ultimateCharge>=100?"⚡ АКТИВИРОВАТЬ УЛЬТУ":"⚡ УЛЬТА x10";
+}
+function activateUltimate(){if(data.ultimateCharge<100||Date.now()<data.ultimateUntil)return;data.ultimateCharge=0;data.ultimateUntil=Date.now()+15000;ultimateActive=true;notify("⚡ КОСМИЧЕСКАЯ УЛЬТА АКТИВИРОВАНА! x10");update()}
+function renderPortals(){el("portalList").innerHTML=portals.map(p=>{const opened=data.portals.includes(p.id),ready=data.totalClicks>=p.clicks&&data.gems>=p.gems;return `<div class="portal"><b>${p.name}</b><p class="small">${p.desc}</p><div class="small">Нужно: ${p.clicks.toLocaleString("ru-RU")} кликов и ${p.gems} 💎</div><button ${opened||!ready?"disabled":""} onclick="openPortal('${p.id}')">${opened?"Открыт ✓":ready?"Открыть портал":"Закрыт 🔒"}</button></div>`}).join("")}
+function openPortal(id){const p=portals.find(x=>x.id===id);if(!p||data.portals.includes(id)||data.totalClicks<p.clicks||data.gems<p.gems)return;data.gems-=p.gems;data.portals.push(id);notify("🌀 ПОРТАЛ ОТКРЫТ: "+p.name);checkAchievements();update()}
+function renderArtifacts(){el("artifactList").innerHTML=artifacts.map(a=>{const level=artifactBonus(a.id),cost=a.cost*(level+1);return `<div class="artifact"><b>${a.name}</b><p class="small">${a.desc}</p><div>Уровень: ${level}/${a.max}</div><button ${level>=a.max||data.gems<cost?"disabled":""} onclick="buyArtifact('${a.id}')">${level>=a.max?"МАКСИМУМ":"Купить за "+cost+" 💎"}</button></div>`}).join("")}
+function buyArtifact(id){const a=artifacts.find(x=>x.id===id);if(!a)return;const level=artifactBonus(id),cost=a.cost*(level+1);if(level>=a.max||data.gems<cost)return;data.gems-=cost;const found=data.artifacts.find(x=>x.id===id);if(found)found.level++;else data.artifacts.push({id,level:1});checkAchievements();update()}
+function renderRanks(){let current=ranks[0],next=null;for(const r of ranks){if(data.totalClicks>=r.clicks)current=r;else{next=r;break}}el("rankHeader").textContent=current.icon+" "+current.name;el("rankName").textContent=current.icon+" "+current.name;el("rankDescription").textContent=current.desc;el("rankBar").style.width=(next?Math.min(100,(data.totalClicks-current.clicks)/(next.clicks-current.clicks)*100):100)+"%";el("rankProgress").textContent=next?"Кликов: "+data.totalClicks.toLocaleString("ru-RU")+" · До ранга "+next.name+": "+(next.clicks-data.totalClicks).toLocaleString("ru-RU"):"Максимальный ранг достигнут!"}
+function openChest(){if(data.chestKeys<=0)return;data.chestKeys--;data.chestsOpened++;const r=Math.random();let msg;if(r<.08){const n=10+Math.floor(Math.random()*16);data.gems=Math.min(MAX_GEMS,data.gems+n);msg="💎 ЛЕГЕНДАРНО! Ты получил "+n+" кристаллов!"}else if(r<.30){const n=5000+Math.floor(Math.random()*5001);addCoins(n);msg="🌟 РЕДКАЯ НАГРАДА! +"+n+" монет!"}else{const n=500+Math.floor(Math.random()*2501);addCoins(n);msg="🎁 Ты получил "+n+" монет!"}el("chestMessage").textContent=msg;checkAchievements();update()}
+function price(item){const level=item.id==="auto"?data.auto:data.upgrades[item.id];return Math.floor(item.base*Math.pow(1.65,level))}
+function renderShop(){el("shopItems").innerHTML=shop.map(i=>{const level=i.id==="auto"?data.auto:data.upgrades[i.id],cost=price(i),max=level>=i.max;return `<div class="item"><div><b>${i.name}</b><br><span class="small">${i.desc} · Уровень ${level}/${i.max}</span></div><button ${max||data.coins<cost?"disabled":""} onclick="buy('${i.id}')">${max?"МАКС":"🪙 "+cost.toLocaleString("ru-RU")}</button></div>`}).join("")}
+function buy(id){const item=shop.find(x=>x.id===id);if(!item)return;const level=id==="auto"?data.auto:data.upgrades[id],cost=price(item);if(level>=item.max||data.coins<cost||!validNumber(cost))return;data.coins-=cost;if(id==="auto")data.auto++;else data.upgrades[id]++;update()}
+setInterval(()=>{if(data.auto>0){const earned=data.auto;if(addCoins(earned))update()}},1000);
+function dailyReward(){const today=new Date().toLocaleDateString();if(data.dailyDate===today){notify("Награда уже получена сегодня!");return}data.dailyDate=today;data.gems=Math.min(MAX_GEMS,data.gems+2);addCoins(250*(data.rebirths+1));notify("🎁 Ежедневная награда получена!");update()}
+function timedBonus(){const now=Date.now();if(now-data.lastBonusTime<600000)return;data.lastBonusTime=now;const reward=Math.floor(100+Math.random()*901);addCoins(reward);notify("🎉 Бонус: +"+reward+" монет!");update()}
+function updateBonusTimer(){const remaining=600000-(Date.now()-data.lastBonusTime),b=el("bonusButton");if(!b)return;if(remaining<=0){b.disabled=false;el("bonusTimer").textContent="Бонус доступен!"}else{b.disabled=true;el("bonusTimer").textContent="Следующий бонус через "+Math.floor(remaining/60000)+":"+String(Math.floor(remaining%60000/1000)).padStart(2,"0")}}
+setInterval(updateBonusTimer,1000);
+function renderAchievements(){el("achievementList").innerHTML=achievements.map(a=>{const done=a.check(),claimed=data.claimed.includes(a.id);return `<div class="item"><div><b>${a.name}</b><br><span class="small">${a.desc} · Награда: ${a.reward}</span></div><button ${!done||claimed?"disabled":""} onclick="claimAchievement('${a.id}')">${claimed?"Получено":done?"Забрать":"Не выполнено"}</button></div>`}).join("")}
+function claimAchievement(id){const a=achievements.find(x=>x.id===id);if(!a||!a.check()||data.claimed.includes(id))return;data.claimed.push(id);addCoins(a.reward);update()}
+function checkAchievements(){renderAchievements();saveGame()}
+function renderPlanets(){
+const current=planets.find(p=>p.id===data.activePlanet)||planets[0],next=planets.find(p=>data.totalClicks<p.clicks&&p.clicks>0&&!data.planetUnlocks.includes(p.id)),progress=next?Math.min(100,data.totalClicks/next.clicks*100):100;
+el("planetProgress").innerHTML="<b>Текущий мир: "+current.icon+" "+current.name+"</b><div class='progress'><div style='width:"+progress+"%'></div></div><div class='small'>Кликов всего: "+data.totalClicks+(next?" · До следующей планеты: "+next.clicks:" · Все планеты открыты!")+"</div>";
+el("planetList").innerHTML=planets.map(p=>{const unlocked=data.totalClicks>=p.clicks||data.planetUnlocks.includes(p.id),selected=data.activePlanet===p.id;return `<div class="planet-card ${selected?"selected":""}"><div class="planet-icon">${p.icon}</div><b>${p.name}</b><div class="small">${p.desc}</div><div class="small">${p.clicks===0?"Стартовый мир":"Нужно кликов: "+p.clicks}</div><button ${!unlocked||selected?"disabled":""} onclick="selectPlanet('${p.id}')">${selected?"Выбрана":unlocked?"Посетить":"Закрыта 🔒"}</button></div>`}).join("")}
+function selectPlanet(id){const p=planets.find(x=>x.id===id);if(!p||(data.totalClicks<p.clicks&&!data.planetUnlocks.includes(id)))return;data.activePlanet=id;document.body.dataset.planet=id;update()}
+function renderRebirth(){const cost=10000*Math.pow(5,data.rebirths);el("rebirthInfo").innerHTML="Стоимость: "+cost.toLocaleString("ru-RU")+" монет<br>Кристаллы за перерождение: "+(data.rebirths+1)+"<br>Текущих перерождений: "+data.rebirths}
+function doRebirth(){const cost=10000*Math.pow(5,data.rebirths);if(!Number.isFinite(cost)||data.coins<cost){alert("Недостаточно монет!");return}if(!confirm("Переродиться? Монеты и улучшения сбросятся."))return;data.coins=0;data.power=1;data.auto=0;data.upgrades={enhanced:0,super:0,income:0,mult:0};data.rebirths++;data.gems=Math.min(MAX_GEMS,data.gems+data.rebirths);checkAchievements();update()}
+function usePromo(){const code=el("promoInput").value.trim().toUpperCase();if(!Object.prototype.hasOwnProperty.call(promos,code)){el("promoMessage").textContent="Неверный промокод.";return}if(data.usedPromos.includes(code)){el("promoMessage").textContent="Этот код уже использован.";return}if(data.coins+promos[code]>MAX_COINS){el("promoMessage").textContent="Слишком много монет.";return}data.usedPromos.push(code);addCoins(promos[code]);el("promoMessage").textContent="Промокод активирован! +"+promos[code]+" монет";el("promoInput").value="";update()}
+function setTheme(theme){if(!["cosmic","dark","pink","neon","light"].includes(theme))return;document.body.dataset.theme=theme;try{localStorage.setItem("superClickerTheme",theme)}catch(e){}}
+function updateNavHint(){const n=el("mainNav"),left=n.scrollLeft>3,right=n.scrollLeft+n.clientWidth<n.scrollWidth-3;el("navLeft").style.opacity=left?"1":".15";el("navRight").style.opacity=right?"1":".15";el("navHintText").textContent=left&&right?"Листай влево или вправо":right?"Листай вправо, чтобы увидеть ещё →":left?"← Листай влево, чтобы вернуться":"Выбери раздел игры"}
+function showPage(id){const p=el(id);if(!p)return;document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));p.classList.add("active");document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));if(id==="admin")adminRefresh();updateNavHint()}
+el("mainNav").addEventListener("scroll",updateNavHint,{passive:true});window.addEventListener("resize",updateNavHint);
+function resetGame(){
+if(!confirm("ВНИМАНИЕ! Весь прогресс будет удалён. Продолжить?"))return;
+try{localStorage.removeItem(SAVE_KEY);localStorage.removeItem(BACKUP_KEY)}catch(e){}
+data=initialData();ultimateActive=false;lastAcceptedClick=0;
+["promoInput","adminCoins","adminGems","adminPower","adminBossLevel"].forEach(id=>{if(el(id))el(id).value=""});
+["promoMessage","message","chestMessage","comboDisplay","adminMessage","bossMessage","bossMessage2"].forEach(id=>el(id).textContent="");
+el("adminPanel").style.display="none";document.body.dataset.planet="cosmic";saveGame();update();showPage("game");alert("Готово! Прогресс полностью сброшен.")
+}
+function renderLeaderboard(){const entries=[{name:"КосмоКликер",score:250000},{name:"MegaPlayer",score:125000},{name:"StarCoin",score:80000},{name:"ClickMaster",score:45000},{name:"Ты",score:Math.floor(data.totalEarned)}];entries.sort((a,b)=>b.score-a.score);el("leaderList").innerHTML=entries.map((x,i)=>`<div class="item"><b>${i+1}. ${x.name}</b><span>${x.score.toLocaleString("ru-RU")} 🪙</span></div>`).join("")}
+function adminTab(name,button){document.querySelectorAll(".admin-section").forEach(x=>x.classList.remove("selected"));document.querySelectorAll(".admin-tabs button").forEach(x=>x.classList.remove("selected"));const s=el("adm-"+name);if(s)s.classList.add("selected");if(button)button.classList.add("selected")}
+function adminMessage(t){el("adminMessage").textContent=t}
+function adminRefresh(){const v={admCoinsView:Math.floor(data.coins).toLocaleString("ru-RU"),admGemsView:data.gems.toLocaleString("ru-RU"),admPowerView:totalPower().toLocaleString("ru-RU"),admBossView:data.bossLevel.toLocaleString("ru-RU"),admClicksView:data.totalClicks.toLocaleString("ru-RU"),admRebirthView:data.rebirths.toLocaleString("ru-RU")};for(const id in v)if(el(id))el(id).textContent=v[id]}
+function adminAddCoins(amount){const n=amount===undefined?Number(el("adminCoins").value):amount;if(!validNumber(n,1)||data.coins+n>MAX_COINS||data.totalEarned+n>MAX_COINS){adminMessage("❌ Некорректное количество монет.");return}addCoins(n);el("adminCoins").value="";adminMessage("✅ Добавлено "+n.toLocaleString("ru-RU")+" монет!");update()}
+function adminSetCoins(){const n=Number(el("adminCoins").value);if(!validNumber(n)){adminMessage("❌ Введи корректное количество монет.");return}data.coins=n;el("adminCoins").value="";adminMessage("✅ Баланс монет установлен!");update()}
+function adminAddGems(amount){const n=amount===undefined?Number(el("adminGems").value):amount;if(!validNumber(n,1,MAX_GEMS)){adminMessage("❌ Некорректное количество кристаллов.");return}data.gems=Math.min(MAX_GEMS,data.gems+n);el("adminGems").value="";adminMessage("💎 Кристаллы добавлены!");update()}
+function adminSetGems(){const n=Number(el("adminGems").value);if(!validNumber(n,0,MAX_GEMS)){adminMessage("❌ Введи корректное количество кристаллов.");return}data.gems=n;el("adminGems").value="";adminMessage("💎 Баланс кристаллов установлен!");update()}
+function adminSetPower(){const n=Number(el("adminPower").value);if(!validNumber(n,1,1000000)){adminMessage("❌ Сила должна быть от 1 до 1 000 000.");return}data.power=Math.floor(n);el("adminPower").value="";adminMessage("⚡ Сила ядра изменена!");update()}
+function adminPowerPreset(n){data.power=n;adminMessage("⚡ Сила клика установлена: "+n.toLocaleString("ru-RU"));update()}
+function adminSetMultiplier(n){if(!validNumber(n,.01,1000000))return;data.multiplier=n;adminMessage("🚀 Множитель установлен: x"+n);update()}
+function adminUnlockPlanets(){data.planetUnlocks=planets.map(p=>p.id);adminMessage("🪐 Все планеты открыты! Счётчик кликов не изменён.");update()}
+function adminUnlockPortals(){data.portals=portals.map(p=>p.id);adminMessage("🌀 Все порталы открыты!");update()}
+function adminSetPlanet(id){if(!planets.some(p=>p.id===id))return;data.activePlanet=id;document.body.dataset.planet=id;adminMessage("🪐 Мир изменён!");update()}
+function adminMaxArtifacts(){data.artifacts=artifacts.map(a=>({id:a.id,level:a.max}));adminMessage("💎 Все артефакты улучшены до максимума!");update()}
+function adminSetBoss(){const n=Number(el("adminBossLevel").value);if(!validNumber(n,1,100000)){adminMessage("❌ Уровень босса должен быть от 1 до 100 000.");return}data.bossLevel=Math.floor(n);data.bossHp=bossMaxHp(data.bossLevel);el("adminBossLevel").value="";adminMessage("👾 Уровень босса изменён!");update()}
+function adminHealBoss(){data.bossHp=bossMaxHp(data.bossLevel);adminMessage("❤️ Здоровье босса восстановлено!");update()}
+function adminDefeatBoss(){if(!confirm("Завершить бой и выдать награду за босса?"))return;const b=bosses[(data.bossLevel-1)%bosses.length],reward=b.reward*data.bossLevel;addCoins(reward);data.gems=Math.min(MAX_GEMS,data.gems+b.rewardGems);data.bossesDefeated++;data.bossLevel++;data.bossHp=bossMaxHp(data.bossLevel);adminMessage("🏆 Босс побеждён! Награда выдана.");checkAchievements();update()}
+function adminUnlockAchievements(){achievements.forEach(a=>{if(!data.claimed.includes(a.id)){data.claimed.push(a.id);addCoins(a.reward)}});adminMessage("🏆 Все достижения отмечены полученными!");update()}
+function adminGiveKeys(){data.chestKeys=Math.min(1e9,data.chestKeys+100);adminMessage("🎁 Выдано 100 ключей!");update()}
+function adminGiveRebirth(){data.rebirths=Math.min(100000,data.rebirths+1);data.gems=Math.min(MAX_GEMS,data.gems+data.rebirths);adminMessage("🌌 Перерождение добавлено!");checkAchievements();update()}
+function adminResetUpgrades(){if(!confirm("Сбросить все улучшения магазина и силу клика?"))return;data.power=1;data.multiplier=1;data.auto=0;data.upgrades={enhanced:0,super:0,income:0,mult:0};data.artifacts=[];adminMessage("Улучшения сброшены.");update()}
+function adminClaimBonus(){addCoins(5000);data.gems=Math.min(MAX_GEMS,data.gems+10);adminMessage("🎁 Выдано 5 000 монет и 10 кристаллов!");update()}
+let titleClicks=[];
+el("gameTitle").addEventListener("click",()=>{const now=Date.now();titleClicks=titleClicks.filter(t=>now-t<2000);titleClicks.push(now);if(titleClicks.length>=5){el("adminPanel").style.display="block";showPage("admin");titleClicks=[]}});
+document.addEventListener("contextmenu",e=>e.preventDefault());
+document.addEventListener("copy",e=>e.preventDefault());document.addEventListener("cut",e=>e.preventDefault());
+document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&["c","x","u","s","a"].includes(e.key.toLowerCase()))e.preventDefault()});
+setInterval(()=>{if(Date.now()>=data.ultimateUntil&&ultimateActive){ultimateActive=false;notify("⚡ Эффект ульты закончился!")}renderUltimate()},500);
+try{const t=localStorage.getItem("superClickerTheme");if(["cosmic","dark","pink","neon","light"].includes(t))setTheme(t)}catch(e){}
+try{const s=localStorage.getItem(SAVE_KEY);if(s)data=cleanData(JSON.parse(s))}catch(e){data=initialData()}
+document.body.dataset.planet=data.activePlanet||"cosmic";
+update();updateBonusTimer();saveGame();updateNavHint();
+</script>
+</body>
+</html>
